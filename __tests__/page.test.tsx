@@ -5,5 +5,5 @@ import Page from "../app/page";
 
 test("Page", () => {
   render(<Page />);
-  expect(screen.getByText(/Get started by editing/)).toBeDefined();
+  expect(screen.getByText(/Join from invite/)).toBeDefined();
 });

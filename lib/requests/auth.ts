@@ -11,6 +11,7 @@ export const fetchSession = async () => {
       const user: User = await res.json();
       return user;
     }
+    console.log("Session not found: ", res);
   } catch (err) {
     // do nothing
   }
@@ -49,6 +50,7 @@ export const register = async (
       },
       body: JSON.stringify({ name, password, email }),
     });
+    console.log("register res: ", res);
     if (res.status === 201) {
       const user: User = await res.json();
       return user;
@@ -57,11 +59,11 @@ export const register = async (
       return message as string;
     }
   } catch (err) {
-    console.error(err);
+    console.error("catch error:", err);
   }
 };
 
-export const login = async (name: string, password: string) => {
+export const login = async (email: string, password: string) => {
   try {
     const res = await fetch(`${API_URL}/auth/login`, {
       method: "POST",
@@ -69,8 +71,9 @@ export const login = async (name: string, password: string) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ name, password }),
+      body: JSON.stringify({ email, password }),
     });
+    console.log("login res: ", res);
     if (res.status === 200) {
       const user: User = await res.json();
       return user;
