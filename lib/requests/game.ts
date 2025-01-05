@@ -1,51 +1,21 @@
-import { API_URL } from "@/lib/config";
 import { Game } from "@/lib/types";
 
-export const createGame = async (side: string, unlisted: boolean) => {
-  try {
-    const res = await fetch(`${API_URL}/games`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ side, unlisted }),
-      cache: "no-store",
-    });
+import { makeRequest } from "./utils";
 
-    if (res && res.status === 201) {
-      const game: Game = await res.json();
-      return game;
-    }
-  } catch (err) {
-    console.error(err);
-  }
+export const createGame = async (side: string, unlisted: boolean) => {
+  return makeRequest<Game>("/games", {
+    method: "POST",
+    body: JSON.stringify({ side, unlisted }),
+    maxAge: 0,
+  });
 };
 
 export const fetchActiveGame = async (code: string) => {
-  try {
-    const res = await fetch(`${API_URL}/games/${code}`, { cache: "no-store" });
-
-    if (res && res.status === 200) {
-      const game: Game = await res.json();
-      return game;
-    }
-  } catch (err) {
-    console.error(err);
-  }
+  return makeRequest<Game>(`/games/${code}`, { maxAge: 0 });
 };
 
 export const fetchPublicGames = async () => {
-  try {
-    const res = await fetch(`${API_URL}/games`, { cache: "no-store" });
-
-    if (res && res.status === 200) {
-      const games: Game[] = await res.json();
-      return games;
-    }
-  } catch (err) {
-    console.error(err);
-  }
+  return makeRequest<Game[]>("/games", { maxAge: 0 });
 };
 
 export const fetchArchivedGame = async ({
@@ -55,28 +25,10 @@ export const fetchArchivedGame = async ({
   id?: number;
   userid?: number;
 }) => {
-  let url = `${API_URL}/games?`;
+  // Use a revalidation time of 20 seconds for archived games
   if (id) {
-    url += `id=${id}`;
+    return makeRequest<Game>(`/games?id=${id}`, { maxAge: 20 });
   } else {
-    url += `userid=${userid}`;
-  }
-  try {
-    // TODO: handle caching more efficiently
-    const res = await fetch(url, {
-      next: { revalidate: 20 },
-    });
-
-    if (res && res.status === 200) {
-      if (id) {
-        const game: Game = await res.json();
-        if (game.id) return game;
-      } else {
-        const games: Game[] = await res.json();
-        if (games.length && games[0].id) return games;
-      }
-    }
-  } catch (err) {
-    console.error(err);
+    return makeRequest<Game[]>(`/games?userid=${userid}`, { maxAge: 20 });
   }
 };
