@@ -24,14 +24,19 @@ import type { ClearPremoves } from "react-chessboard";
 import { Chessboard } from "react-chessboard";
 import { io } from "socket.io-client";
 
-import { API_URL } from "@/lib/config";
+import { API_URL, SOCKET_URL } from "@/lib/config";
 import { Game, Message } from "@/lib/types";
 
 import { lobbyReducer, squareReducer } from "./reducers";
 import { initSocket } from "./socketEvents";
 import { syncPgn, syncSide } from "./utils";
 
-const socket = io(API_URL, { withCredentials: true, autoConnect: false });
+const socket = io(SOCKET_URL, {
+  // path: "/api/v1/socket",
+  withCredentials: true,
+  autoConnect: false,
+  transports: ["websocket"],
+});
 
 export default function GamePage({ initialLobby }: { initialLobby: Game }) {
   const session = useContext(SessionContext);
@@ -106,9 +111,31 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
     lobby.white?.disconnectedOn,
   ]);
 
+  // socket events
   useEffect(() => {
     if (!session?.user || !session.user?.id) return;
     socket.connect();
+
+    console.log("first try", socket.connected);
+    socket.on("connect", function () {
+      console.log("second try", socket.connected);
+    });
+    console.log("third try", socket.connected);
+
+    socket.on("connect_error", (err) => {
+      // the error object
+      console.log(err);
+      // the reason of the error, for example "xhr poll error"
+      console.log(err.message);
+    });
+
+    socket.on("disconnect", (reason, details) => {
+      // the reason of the disconnection, for example "transport error"
+      console.log(reason);
+
+      // the low-level reason of the disconnection, for example "xhr post error"
+      console.log(details);
+    });
 
     window.addEventListener("resize", handleResize);
     handleResize();

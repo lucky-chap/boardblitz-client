@@ -149,7 +149,7 @@ export default function AuthModal() {
               <div className="flex w-full flex-col">
                 <Link
                   className="btn btn-ghost gap-1 normal-case"
-                  href={`/user/${session.user.name}`}
+                  href={`/user/${session.user.id}`}
                   onClick={() =>
                     ((modalToggleRef.current as HTMLInputElement).checked =
                       false)

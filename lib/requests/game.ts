@@ -25,7 +25,6 @@ export const createGame = async (side: string, unlisted: boolean) => {
 export const fetchActiveGame = async (code: string) => {
   try {
     const res = await fetch(`${API_URL}/games/${code}`, { cache: "no-store" });
-
     if (res && res.status === 200) {
       const game: Game = await res.json();
       return game;

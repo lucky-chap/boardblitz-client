@@ -73,6 +73,7 @@ export const login = async (email: string, password: string) => {
       },
       body: JSON.stringify({ email, password }),
     });
+    // make sure to display errors to user
     console.log("login res: ", res);
     if (res.status === 200) {
       const user: User = await res.json();

@@ -1,5 +1,5 @@
 import { API_URL } from "@/lib/config";
-import type { User } from "@/lib/types";
+import type { Game, User } from "@/lib/types";
 
 export const fetchUserProfile = async (userId: string | number) => {
   try {
@@ -8,8 +8,8 @@ export const fetchUserProfile = async (userId: string | number) => {
     });
 
     if (res && res.status === 200) {
-      const user: User = await res.json();
-      return user;
+      const data: User & { recentGames: Game[] } = await res.json();
+      return data;
     }
   } catch (err) {
     // do nothing

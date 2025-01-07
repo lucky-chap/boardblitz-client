@@ -8,13 +8,13 @@ import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 
 export const metadata = {
-  title: "chessu",
+  title: "Boardblitz",
   description: "Play Chess online.",
   openGraph: {
-    title: "chessu",
+    title: "Boardblitz",
     description: "Play Chess online.",
     url: "https://boardblitz.vercel.app",
-    siteName: "chessu",
+    siteName: "Boardblitz",
     locale: "en_US",
     type: "website",
   },
@@ -42,7 +42,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="en" className="overflow-x-hidden">
+    <html lang="en" suppressHydrationWarning>
       <body className="overflow-x-hidden">
         <ContextProvider>
           <Header />

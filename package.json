@@ -20,7 +20,7 @@
     "react": "^19",
     "react-chessboard": "^4.7.2",
     "react-dom": "^19",
-    "socket.io-client": "^4.8.1"
+    "socket.io-client": "^4.7.5"
   },
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "^4.4.0",
