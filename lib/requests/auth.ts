@@ -104,17 +104,19 @@ export const logout = async () => {
 export const updateUser = async (
   name?: string,
   email?: string,
+  oldEmail?: string,
   password?: string
 ) => {
   try {
+    console.log("updating user");
     if (!name && !email && !password) return;
     const res = await fetch(`${API_URL}/auth`, {
-      method: "PATCH",
+      method: "PUT",
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ name, email, password }),
+      body: JSON.stringify({ name, email, oldEmail, password }),
     });
     if (res.status === 200) {
       const user: User = await res.json();

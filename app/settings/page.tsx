@@ -52,9 +52,12 @@ export default function Settings() {
     if (!newName && !newEmail && !updatePassword.value) return;
 
     setButtonLoading(true);
+    const oldEmail = session?.user?.email;
+    console.log("oldEmail: ", oldEmail);
     const user = await updateUser(
       newName,
       newEmail,
+      oldEmail,
       updatePassword.value || undefined
     );
 
