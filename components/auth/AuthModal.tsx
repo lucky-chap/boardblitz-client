@@ -99,8 +99,8 @@ export default function AuthModal() {
       setButtonLoading(true);
       const user = await register(
         registerName.value,
-        registerPassword.value,
-        registerEmail.value || undefined
+        registerEmail.value,
+        registerPassword.value
       );
 
       if (typeof user === "string") {

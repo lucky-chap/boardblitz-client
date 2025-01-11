@@ -10,10 +10,13 @@ import { SessionContext } from "./session";
 
 export default function ContextProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>({});
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [newGameCreated, setNewGameCreated] = useState(false);
 
   async function getSession() {
-    const user = await fetchSession();
-    setUser(user || null);
+    const data = await fetchSession();
+    setIsAuthenticated(data && data.isAuthenticated ? true : false);
+    setUser(data?.user || null);
   }
 
   useEffect(() => {
@@ -21,7 +24,15 @@ export default function ContextProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <SessionContext.Provider value={{ user, setUser }}>
+    <SessionContext.Provider
+      value={{
+        user,
+        setUser,
+        isAuthenticated,
+        newGameCreated,
+        setNewGameCreated,
+      }}
+    >
       {children}
     </SessionContext.Provider>
   );

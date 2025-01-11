@@ -8,10 +8,19 @@ export const fetchSession = async () => {
     });
 
     if (res && res.status === 200) {
-      const user: User = await res.json();
-      return user;
+      console.log("Session found!");
+      const result: User = await res.json();
+      const data: { user: User; isAuthenticated: boolean } = {
+        user: result,
+        isAuthenticated: true,
+      };
+      return data;
+    } else {
+      return {
+        user: undefined,
+        isAuthenticated: false,
+      };
     }
-    console.log("Session not found: ", res);
   } catch (err) {
     // do nothing
   }
@@ -38,8 +47,8 @@ export const setGuestSession = async (name: string) => {
 
 export const register = async (
   name: string,
-  password: string,
-  email?: string
+  email: string,
+  password: string
 ) => {
   try {
     const res = await fetch(`${API_URL}/auth/register`, {
@@ -118,6 +127,7 @@ export const updateUser = async (
       },
       body: JSON.stringify({ name, email, oldEmail, password }),
     });
+    console.log("Reason no update: ", res);
     if (res.status === 200) {
       const user: User = await res.json();
       return user;

@@ -1,11 +1,44 @@
 import "./globals.css";
 
 import type { ReactNode } from "react";
+import localFont from "next/font/local";
 import ContextProvider from "@/context/ContextProvider";
 
-import AuthModal from "@/components/auth/AuthModal";
-import Footer from "@/components/Footer";
-import Header from "@/components/Header";
+const inter = localFont({
+  variable: "--font-sans",
+  src: [
+    {
+      path: "../public/fonts/inter/Inter-Light.woff2",
+      weight: "300",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/inter/Inter-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/inter/Inter-Medium.woff2",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/inter/Inter-SemiBold.woff2",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/inter/Inter-Bold.woff2",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/inter/Inter-ExtraBold.woff2",
+      weight: "800",
+      style: "normal",
+    },
+  ],
+});
 
 export const metadata = {
   title: "Boardblitz",
@@ -43,35 +76,18 @@ export default function RootLayout({
 }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="overflow-x-hidden">
+      <body className={`${inter.variable} overflow-x-hidden font-sans`}>
         <ContextProvider>
-          <Header />
+          {/* <Header /> */}
 
-          <main className="mx-1 flex min-h-[70vh] justify-center md:mx-16 lg:mx-40">
-            {children}
-          </main>
+          {/* <main className="mx-1 flex min-h-[70vh] justify-center md:mx-16 lg:mx-40"> */}
+          <main className="flex min-h-svh">{children}</main>
 
-          <AuthModal />
+          {/* <AuthModal /> */}
         </ContextProvider>
 
-        <Footer />
+        {/* <Footer /> */}
       </body>
     </html>
   );
 }
-
-// export default function RootLayout({
-//   children,
-// }: Readonly<{
-//   children: React.ReactNode;
-// }>) {
-//   return (
-//     <html lang="en">
-//       <body
-//         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-//       >
-//         {children}
-//       </body>
-//     </html>
-//   );
-// }
