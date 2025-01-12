@@ -14,17 +14,15 @@ import { Chessboard } from "react-chessboard";
 
 import { CustomSquares, Game } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
-import { Button } from "../ui/button";
-
-export default function ArchivedGame({ game }: { game: Game }) {
+export default function GameHistoryDetails({ game }: { game: Game }) {
   const [boardWidth, setBoardWidth] = useState(480);
   const moveListRef = useRef<HTMLDivElement>(null);
   const [navFen, setNavFen] = useState<string | null>(null);
   const [navIndex, setNavIndex] = useState<number | null>(null);
   const [flipBoard, setFlipBoard] = useState(false);
-  const [copiedLink, setCopiedLink] = useState(false);
-  const [showPgn, setShowPgn] = useState(true);
+
   const actualGame = new Chess();
   actualGame.loadPgn(game.pgn as string);
 

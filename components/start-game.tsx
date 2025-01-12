@@ -79,7 +79,7 @@ export default function StartGame({
       .then((g) => {
         if (g) {
           setLoading(false);
-          //   router.push(`/play/${g.code}`);
+          router.push(`/play/${g.code}`);
           console.log("Game created: ", g);
           // alert the games table that a new game has been created
           session?.setNewGameCreated(true);

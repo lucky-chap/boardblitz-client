@@ -16,7 +16,7 @@ export default function GameAuthWrapper({
 
   if (!session?.user || !session.user?.id) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4">
+      <div className="flex w-full flex-col items-center justify-center gap-4">
         <div className="text-2xl font-bold">Loading</div>
         <div className="text-xl">Waiting for authentication...</div>
       </div>

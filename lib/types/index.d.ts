@@ -18,9 +18,20 @@ export interface Game {
   id?: number;
   pgn?: string;
   white?: User;
+  white_name?: string;
+  white_id?: number;
   black?: User;
+  black_name?: string;
+  black_id?: number;
   winner?: "white" | "black" | "draw";
   endReason?:
+    | "draw"
+    | "checkmate"
+    | "stalemate"
+    | "repetition"
+    | "insufficient"
+    | "abandoned";
+  end_reason?:
     | "draw"
     | "checkmate"
     | "stalemate"
@@ -34,6 +45,8 @@ export interface Game {
   observers?: User[];
   startedAt?: number;
   endedAt?: number;
+  started_at?: string;
+  ended_at?: string;
 }
 
 export interface Lobby extends Game {

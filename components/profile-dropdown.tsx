@@ -54,6 +54,9 @@ export default function ProfileDropdown() {
           <Link href="/play/me">
             <DropdownMenuItem>Profile</DropdownMenuItem>
           </Link>
+          <Link href="/play/history">
+            <DropdownMenuItem>History</DropdownMenuItem>
+          </Link>
         </DropdownMenuGroup>
 
         <DropdownMenuSeparator />

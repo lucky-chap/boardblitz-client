@@ -3,53 +3,23 @@
 import { useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import { SessionContext } from "@/context/session";
-import { RotateCw } from "lucide-react";
+import { Loader2, RotateCw } from "lucide-react";
 
 import { fetchPublicGames } from "@/lib/requests/game";
 import { Game } from "@/lib/types";
 
 import { Button } from "./ui/button";
 
-const people = [
-  {
-    name: "Lindsay Walton",
-    title: "Front-end Developer",
-    email: "lindsay.walton@example.comd",
-    role: "Member",
-  },
-  {
-    name: "Lindsay Walton",
-    title: "Front-end Developer",
-    email: "lindsay.walton@example.coms",
-    role: "Member",
-  },
-  {
-    name: "Lindsay Walton",
-    title: "Front-end Developer",
-    email: "lindsay.walton@example.comg",
-    role: "Member",
-  },
-  {
-    name: "Lindsay Walton",
-    title: "Front-end Developer",
-    email: "lindsay.walton@example.comz",
-    role: "Member",
-  },
-  {
-    name: "Lindsay Walton",
-    title: "Front-end Developer",
-    email: "lindsay.walton@example.comy",
-    role: "Member",
-  },
-];
-
 export default function GamesTable() {
   const session = useContext(SessionContext);
   const [games, setGames] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
   async function getGames() {
+    setLoading(true);
     const games = await fetchPublicGames();
     setGames(games as Game[]);
+    setLoading(false);
   }
   useEffect(() => {
     getGames();
@@ -148,9 +118,14 @@ export default function GamesTable() {
                     ))}
                 </tbody>
               </table>
-              {games.length === 0 && (
+              {loading == false && games.length === 0 && (
                 <div className="flex h-20 w-full items-center justify-center">
                   <p>No active games yet</p>
+                </div>
+              )}
+              {loading && (
+                <div className="flex h-20 w-full items-center justify-center">
+                  <Loader2 className="animate-spin" />
                 </div>
               )}
             </div>
