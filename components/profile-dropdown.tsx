@@ -1,12 +1,13 @@
 "use client";
 
 import { useContext, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SessionContext } from "@/context/session";
+import demoUserImage from "@/public/images/demo-user.png";
 
-import { login, logout, register, setGuestSession } from "@/lib/requests/auth";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { logout } from "@/lib/requests/auth";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,8 +17,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-import { Button } from "./ui/button";
 
 export default function ProfileDropdown() {
   const router = useRouter();
@@ -36,13 +35,17 @@ export default function ProfileDropdown() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className="cursor-pointer">
-        <Avatar>
-          <AvatarImage
-            className="h-10 w-10 rounded-full border-2 border-gray-900 object-cover"
-            src="https://inbetweendrafts.com/wp-content/uploads/2022/12/FjOQCPqUcAApKBu.jpg"
-          />
-          <AvatarFallback>CN</AvatarFallback>
-        </Avatar>
+        <Image
+          src={
+            session?.user?.profile_picture?.trim().length
+              ? session.user.profile_picture
+              : demoUserImage
+          }
+          alt="user profile image"
+          width={32}
+          height={32}
+          className="h-8 w-8 rounded-full object-fill"
+        />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>

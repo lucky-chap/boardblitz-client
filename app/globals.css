@@ -17,3 +17,25 @@ body {
     --radius: 0.5rem;
   }
 }
+
+/* Custom Scrollbars */
+/* width */
+::-webkit-scrollbar {
+  /* for vertical scrollbars */
+  width: 6px;
+  /* for horizontal scrollbars  */
+  height: 6px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  /* box-shadow: inset 0 0 4px white; */
+  border-radius: 3px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  width: 6px;
+  background: rgb(126, 126, 126);
+  border-radius: 10px;
+}

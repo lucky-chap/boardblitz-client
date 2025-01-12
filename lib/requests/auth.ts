@@ -114,10 +114,12 @@ export const updateUser = async (
   name?: string,
   email?: string,
   oldEmail?: string,
-  password?: string
+  password?: string,
+  profile_picture?: string,
+  banner_picture?: string
 ) => {
   try {
-    console.log("updating user");
+    console.log("updating user profile: ", profile_picture);
     if (!name && !email && !password) return;
     const res = await fetch(`${API_URL}/auth`, {
       method: "PUT",
@@ -125,7 +127,14 @@ export const updateUser = async (
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ name, email, oldEmail, password }),
+      body: JSON.stringify({
+        name,
+        email,
+        oldEmail,
+        password,
+        profile_picture,
+        banner_picture,
+      }),
     });
     console.log("Reason no update: ", res);
     if (res.status === 200) {
