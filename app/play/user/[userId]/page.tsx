@@ -9,13 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import HistoryTable from "@/components/history-table";
 
-export default async function UserProfileDetails({
-  params,
-}: {
-  params: { userId: number | string };
-}) {
-  const p = await params;
-  const userId = p.userId;
+type tParams = Promise<{ userId: string | number }>;
+
+export default async function UserProfileDetails(props: { params: tParams }) {
+  const { userId } = await props.params;
   const data = await fetchUserProfile(userId);
   if (!data) {
     notFound();

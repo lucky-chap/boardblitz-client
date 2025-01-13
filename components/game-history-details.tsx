@@ -177,7 +177,7 @@ export default function GameHistoryDetails({ game }: { game: Game }) {
 
     if (!history.length) return;
 
-    let index = navIndex ?? history.length - 1;
+    const index = navIndex ?? history.length - 1;
 
     return {
       [history[index].from]: { background: "rgba(255, 255, 0, 0.4)" },
