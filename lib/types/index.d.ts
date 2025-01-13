@@ -79,3 +79,14 @@ export interface Message {
   author: User;
   message: string;
 }
+
+export type ClaimAbandonedResponse = {
+  success: boolean;
+  gameOver?: {
+    reason: string;
+    winnerName: string;
+    winnerSide?: string;
+    id: number;
+  };
+  error?: string;
+};

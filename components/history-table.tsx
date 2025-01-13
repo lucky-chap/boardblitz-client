@@ -113,7 +113,7 @@ export default function HistoryTable({
                         )}
                         {/* black  */}
                         {game.black_id ? (
-                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-blue-500 sm:pl-6">
+                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-blue-500">
                             <Link href={`/play/user/${game.black_id}`}>
                               {game?.black_name}
                             </Link>

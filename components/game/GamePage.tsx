@@ -1,45 +1,38 @@
 "use client";
 
-// TODO: restructure, i could use some help with this :>
-import type {
-  FormEvent,
-  JSXElementConstructor,
-  KeyboardEvent,
-  ReactElement,
-  ReactNode,
-  ReactPortal,
-} from "react";
+import type { FormEvent, KeyboardEvent } from "react";
 import { useContext, useEffect, useReducer, useRef, useState } from "react";
+import Link from "next/link";
 import { SessionContext } from "@/context/session";
-import {
-  IconChevronLeft,
-  IconChevronRight,
-  IconCopy,
-  IconPlayerSkipBack,
-  IconPlayerSkipForward,
-} from "@tabler/icons-react";
 import type { Move, Square } from "chess.js";
 import { Chess } from "chess.js";
+import { Loader2 } from "lucide-react";
 import type { ClearPremoves } from "react-chessboard";
 import { Chessboard } from "react-chessboard";
 import { io } from "socket.io-client";
 
-import { API_URL, SOCKET_URL } from "@/lib/config";
-import { Game, Message } from "@/lib/types";
+import { SOCKET_URL } from "@/lib/config";
+import { ClaimAbandonedResponse, Game, Message } from "@/lib/types";
 
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 import { lobbyReducer, squareReducer } from "./reducers";
 import { initSocket } from "./socketEvents";
 import { syncPgn, syncSide } from "./utils";
 
 const socket = io(SOCKET_URL, {
-  // path: "/api/v1/socket",
   withCredentials: true,
   autoConnect: false,
   transports: ["websocket"],
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000,
+  timeout: 20000,
 });
 
 export default function GamePage({ initialLobby }: { initialLobby: Game }) {
   const session = useContext(SessionContext);
+  const [chatText, setChatText] = useState("");
+  const [claimingAbandoned, setIsClaimingAbandoned] = useState(false);
 
   const [lobby, updateLobby] = useReducer(lobbyReducer, {
     ...initialLobby,
@@ -62,13 +55,7 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
   const [navIndex, setNavIndex] = useState<number | null>(null);
 
   const [playBtnLoading, setPlayBtnLoading] = useState(false);
-  const [copiedLink, setCopiedLink] = useState(false);
-  const [chatMessages, setChatMessages] = useState<Message[]>([
-    {
-      author: {},
-      message: `Welcome! You can invite friends to watch or play by sharing the link above. Have fun!`,
-    },
-  ]);
+  const [chatMessages, setChatMessages] = useState<Message[]>([]);
   const chatListRef = useRef<HTMLUListElement>(null);
   const moveListRef = useRef<HTMLDivElement>(null);
 
@@ -103,7 +90,7 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
       );
     }
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-nextLine react-hooks/exhaustive-deps
   }, [
     lobby.black,
     lobby.white,
@@ -123,17 +110,13 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
     console.log("third try", socket.connected);
 
     socket.on("connect_error", (err) => {
-      // the error object
       console.log(err);
-      // the reason of the error, for example "xhr poll error"
       console.log(err.message);
     });
 
     socket.on("disconnect", (reason, details) => {
-      // the reason of the disconnection, for example "transport error"
       console.log(reason);
 
-      // the low-level reason of the disconnection, for example "xhr post error"
       console.log(details);
     });
 
@@ -164,7 +147,7 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
       socket.removeAllListeners();
       socket.disconnect();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-nextLine react-hooks/exhaustive-deps
   }, []);
 
   // auto scroll down when new message is added
@@ -184,7 +167,7 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
 
   useEffect(() => {
     updateTurnTitle();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-nextLine react-hooks/exhaustive-deps
   }, [lobby]);
 
   function updateTurnTitle() {
@@ -238,6 +221,12 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
     if (!input.value || input.value.length == 0) return;
     sendChat(input.value);
     input.value = "";
+  }
+
+  function updateChat() {
+    if (chatText.length == 0) return;
+    sendChat(chatText);
+    setChatText("");
   }
 
   function makeMove(m: { from: string; to: string; promotion?: string }) {
@@ -420,192 +409,6 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
     socket.emit("joinAsPlayer");
   }
 
-  function getPlayerHtml(side: "top" | "bottom") {
-    const blackHtml = (
-      <div className="flex w-full flex-col justify-center">
-        <a
-          className={
-            (lobby.black?.name ? "font-bold" : "") +
-            (typeof lobby.black?.id === "number"
-              ? " link-hover text-primary"
-              : " cursor-default")
-          }
-          href={
-            typeof lobby.black?.id === "number"
-              ? `/user/${lobby.black?.name}`
-              : undefined
-          }
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {lobby.black?.name || "(no one)"}
-        </a>
-        <span className="flex items-center gap-1 text-xs">
-          black
-          {lobby.black?.connected === false && (
-            <span className="badge badge-error badge-xs">disconnected</span>
-          )}
-        </span>
-      </div>
-    );
-    const whiteHtml = (
-      <div className="flex w-full flex-col justify-center">
-        <a
-          className={
-            (lobby.white?.name ? "font-bold" : "") +
-            (typeof lobby.white?.id === "number"
-              ? " link-hover text-primary"
-              : " cursor-default")
-          }
-          href={
-            typeof lobby.white?.id === "number"
-              ? `/user/${lobby.white?.name}`
-              : undefined
-          }
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {lobby.white?.name || "(no one)"}
-        </a>
-        <span className="flex items-center gap-1 text-xs">
-          white
-          {lobby.white?.connected === false && (
-            <span className="badge badge-error badge-xs">disconnected</span>
-          )}
-        </span>
-      </div>
-    );
-
-    if (lobby.black?.id === session?.user?.id) {
-      return side === "top" ? whiteHtml : blackHtml;
-    } else {
-      return side === "top" ? blackHtml : whiteHtml;
-    }
-  }
-
-  function copyInvite() {
-    const text = `https://ches.su/${lobby.endReason ? `archive/${lobby.id}` : initialLobby.code}`;
-    if ("clipboard" in navigator) {
-      navigator.clipboard.writeText(text);
-    } else {
-      document.execCommand("copy", true, text);
-    }
-    setCopiedLink(true);
-    setTimeout(() => {
-      setCopiedLink(false);
-    }, 5000);
-  }
-
-  function getMoveListHtml() {
-    const history = lobby.actualGame.history({ verbose: true });
-    const movePairs = history
-      .slice(history.length / 2)
-      .map((_: any, i: number) => history.slice((i *= 2), i + 2));
-
-    return movePairs.map(
-      (
-        moves: {
-          san:
-            | string
-            | number
-            | bigint
-            | boolean
-            | ReactElement<unknown, string | JSXElementConstructor<any>>
-            | Iterable<ReactNode>
-            | ReactPortal
-            | Promise<
-                | string
-                | number
-                | bigint
-                | boolean
-                | ReactPortal
-                | ReactElement<unknown, string | JSXElementConstructor<any>>
-                | Iterable<ReactNode>
-                | null
-                | undefined
-              >
-            | null
-            | undefined;
-        }[],
-        i: number
-      ) => {
-        return (
-          <tr className="flex w-full items-center gap-1" key={i + 1}>
-            <td className="">{i + 1}.</td>
-            <td
-              className={
-                "btn btn-ghost btn-xs h-full w-2/5 font-normal normal-case" +
-                ((history.indexOf(moves[0]) === history.length - 1 &&
-                  navIndex === null) ||
-                navIndex === history.indexOf(moves[0])
-                  ? " btn-active pointer-events-none rounded-none"
-                  : "")
-              }
-              id={
-                (history.indexOf(moves[0]) === history.length - 1 &&
-                  navIndex === null) ||
-                navIndex === history.indexOf(moves[0])
-                  ? "activeNavMove"
-                  : ""
-              }
-              onClick={() => navigateMove(history.indexOf(moves[0]))}
-            >
-              {moves[0].san}
-            </td>
-            {moves[1] && (
-              <td
-                className={
-                  "btn btn-ghost btn-xs h-full w-2/5 font-normal normal-case" +
-                  ((history.indexOf(moves[1]) === history.length - 1 &&
-                    navIndex === null) ||
-                  navIndex === history.indexOf(moves[1])
-                    ? " btn-active pointer-events-none rounded-none"
-                    : "")
-                }
-                id={
-                  (history.indexOf(moves[1]) === history.length - 1 &&
-                    navIndex === null) ||
-                  navIndex === history.indexOf(moves[1])
-                    ? "activeNavMove"
-                    : ""
-                }
-                onClick={() => navigateMove(history.indexOf(moves[1]))}
-              >
-                {moves[1].san}
-              </td>
-            )}
-          </tr>
-        );
-      }
-    );
-  }
-
-  function navigateMove(index: number | null | "prev") {
-    const history = lobby.actualGame.history({ verbose: true });
-
-    if (
-      index === null ||
-      (index !== "prev" && index >= history.length - 1) ||
-      !history.length
-    ) {
-      // last move
-      setNavIndex(null);
-      setNavFen(null);
-      return;
-    }
-
-    if (index === "prev") {
-      index = history.length - 2;
-    } else if (index < 0) {
-      index = 0;
-    }
-
-    chessboardRef.current?.clearPremoves(false);
-
-    setNavIndex(index);
-    setNavFen(history[index].after);
-  }
-
   function getNavMoveSquares() {
     if (navIndex === null) return;
     const history = lobby.actualGame.history({ verbose: true });
@@ -629,147 +432,164 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
     ) {
       return;
     }
-    socket.emit("claimAbandoned", type);
+    // socket.emit("claimAbandoned", type);
+    return new Promise<ClaimAbandonedResponse>((resolve, reject) => {
+      socket.emit(
+        "claimAbandoned",
+        type,
+        (response: ClaimAbandonedResponse) => {
+          if (response.success) {
+            console.log("Claming response");
+            resolve(response);
+          } else {
+            reject(new Error(response.error || "Failed to claim game"));
+            console.log("Claming error");
+          }
+        }
+      );
+    });
   }
 
+  const handleClaimAbandoned = async (type: "win" | "draw") => {
+    try {
+      setIsClaimingAbandoned(true);
+      const response: ClaimAbandonedResponse = (await claimAbandoned(
+        type
+      )) as ClaimAbandonedResponse;
+
+      if (response.success) {
+        // Claim was successful
+        console.log("Successfully claimed game:", response);
+      } else {
+        setIsClaimingAbandoned(false);
+        // Claim was not successful
+        throw new Error(response.error || "Failed to claim game");
+      }
+    } catch (error) {
+      setIsClaimingAbandoned(false);
+      console.error("Failed to claim abandoned game:", error);
+    } finally {
+      setIsClaimingAbandoned(false);
+    }
+  };
+
   return (
-    <div className="flex w-full flex-wrap justify-center gap-6 px-4 py-4 lg:gap-10 2xl:gap-16">
-      <div className="relative h-min">
-        {/* overlay */}
-        {(!lobby.white?.id || !lobby.black?.id) && (
-          <div className="absolute bottom-0 right-0 top-0 z-10 flex h-full w-full items-center justify-center bg-black bg-opacity-70">
-            <div className="flex w-full items-center justify-center gap-4 bg-base-200 px-2 py-4">
-              Waiting for opponent.
-              {session?.user?.id !== lobby.white?.id &&
-                session?.user?.id !== lobby.black?.id && (
-                  <button
-                    className={
-                      "btn btn-secondary" +
-                      (playBtnLoading ? " btn-disabled" : "")
-                    }
-                    onClick={clickPlay}
-                  >
-                    Play as {lobby.white?.id ? "black" : "white"}
-                  </button>
-                )}
-            </div>
-          </div>
-        )}
-
-        <Chessboard
-          boardWidth={boardWidth}
-          customDarkSquareStyle={{ backgroundColor: "#4b7399" }}
-          customLightSquareStyle={{ backgroundColor: "#eae9d2" }}
-          position={navFen || lobby.actualGame.fen()}
-          boardOrientation={lobby.side === "b" ? "black" : "white"}
-          isDraggablePiece={isDraggablePiece}
-          onPieceDragBegin={onPieceDragBegin}
-          onPieceDragEnd={onPieceDragEnd}
-          onPieceDrop={onDrop}
-          onSquareClick={onSquareClick}
-          onSquareRightClick={onSquareRightClick}
-          arePremovesAllowed={!navFen}
-          customSquareStyles={{
-            ...(navIndex === null
-              ? customSquares.lastMove
-              : getNavMoveSquares()),
-            ...(navIndex === null ? customSquares.check : {}),
-            ...customSquares.rightClicked,
-            ...(navIndex === null ? customSquares.options : {}),
-          }}
-          ref={chessboardRef}
-        />
-      </div>
-
-      <div className="flex max-w-lg flex-1 flex-col items-center justify-center gap-4">
-        <div className="mb-auto flex w-full p-2">
-          <div className="flex flex-1 flex-col items-center justify-between">
-            {getPlayerHtml("top")}
-            <div className="my-auto w-full text-sm">vs</div>
-            {getPlayerHtml("bottom")}
-          </div>
-
-          <div className="flex flex-1 flex-col gap-1">
-            <div className="mb-2 flex w-full flex-col items-end gap-1">
-              {lobby.endReason ? "Archived link:" : "Invite friends:"}
-              <div
-                className={
-                  "dropdown dropdown-end dropdown-top" +
-                  (copiedLink ? " dropdown-open" : "")
-                }
-              >
-                <label
-                  tabIndex={0}
-                  className="badge badge-md h-8 gap-1 bg-base-300 font-mono text-xs text-base-content sm:h-5 sm:text-sm"
-                  onClick={copyInvite}
+    <div className="mx-auto max-w-5xl px-3 py-10 lg:px-6">
+      <div className="flex items-center justify-between">
+        <div className="flex">
+          {typeof lobby.black?.id === "number" ? (
+            <Link href={`/play/user/${lobby.black?.id}`}>
+              <div className="relative mb-3 mr-2">
+                <span
+                  className={`${lobby.black.connected ? "bg-green-50 text-green-800 ring-green-600/20" : "bg-red-50 text-red-800 ring-red-600/20"} inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset`}
                 >
-                  <IconCopy size={16} />
-                  ches.su/
-                  {lobby.endReason ? `archive/${lobby.id}` : initialLobby.code}
-                </label>
-                <div
-                  tabIndex={0}
-                  className="badge dropdown-content badge-neutral text-xs shadow"
-                >
-                  copied to clipboard
-                </div>
+                  {lobby.black.name} - (Black)
+                </span>
               </div>
+            </Link>
+          ) : (
+            <div className="relative mb-3 mr-2">
+              <span
+                className={`${lobby.black && lobby.black.connected ? "bg-green-50 text-green-800 ring-green-600/20" : "bg-red-50 text-red-800 ring-red-600/20"} inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset`}
+              >
+                {lobby.black && lobby.black.name ? lobby.black.name : "No one"}{" "}
+                - (Black)
+              </span>
             </div>
-            <div className="h-32 w-full overflow-y-scroll" ref={moveListRef}>
-              <table className="table-compact table w-full">
-                <tbody>{getMoveListHtml()}</tbody>
-              </table>
+          )}
+          <span className="text-sm font-medium">vs</span>
+
+          {typeof lobby.white?.id === "number" ? (
+            <Link href={`/play/user/${lobby.white?.id}`}>
+              <div className="relative mb-3 ml-2">
+                <span
+                  className={`${lobby.white.connected ? "bg-green-50 text-green-800 ring-green-600/20" : "bg-red-50 text-red-800 ring-red-600/20"} inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset`}
+                >
+                  {lobby.white.name} - (White)
+                </span>
+              </div>
+            </Link>
+          ) : (
+            <div className="relative mb-3 ml-2">
+              <span
+                className={`${lobby.white && lobby.white.connected ? "bg-green-50 text-green-800 ring-green-600/20" : "bg-red-50 text-red-800 ring-red-600/20"} inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset`}
+              >
+                {lobby.white && lobby.white.name ? lobby.white.name : "No one"}{" "}
+                - (White)
+              </span>
             </div>
-            <div className="flex h-4 w-full">
-              <button
-                className={
-                  "btn btn-sm flex-grow rounded-r-none" +
-                  (navIndex === 0 || lobby.actualGame.history().length <= 1
-                    ? " btn-disabled"
-                    : "")
-                }
-                onClick={() => navigateMove(0)}
-              >
-                <IconPlayerSkipBack size={18} />
-              </button>
-              <button
-                className={
-                  "btn btn-sm flex-grow rounded-none" +
-                  (navIndex === 0 || lobby.actualGame.history().length <= 1
-                    ? " btn-disabled"
-                    : "")
-                }
-                onClick={() =>
-                  navigateMove(navIndex === null ? "prev" : navIndex - 1)
-                }
-              >
-                <IconChevronLeft size={18} />
-              </button>
-              <button
-                className={
-                  "btn btn-sm flex-grow rounded-none" +
-                  (navIndex === null ? " btn-disabled" : "")
-                }
-                onClick={() =>
-                  navigateMove(navIndex === null ? null : navIndex + 1)
-                }
-              >
-                <IconChevronRight size={18} />
-              </button>
-              <button
-                className={
-                  "btn btn-sm flex-grow rounded-l-none" +
-                  (navIndex === null ? " btn-disabled" : "")
-                }
-                onClick={() => navigateMove(null)}
-              >
-                <IconPlayerSkipForward size={18} />
-              </button>
-            </div>
-          </div>
+          )}
         </div>
 
-        <div className="relative h-60 w-full min-w-fit">
+        {session?.user?.id !== lobby.white?.id &&
+          session?.user?.id !== lobby.black?.id && (
+            <div className="relative">
+              <span className="absolute inline-flex h-2 w-2 animate-ping rounded-full bg-yellow-500 opacity-75"></span>
+
+              <span className="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20">
+                Waiting for opponent to join...
+              </span>
+            </div>
+          )}
+
+        {/* show whose turn it is to play */}
+        <div className="flex items-center gap-2">
+          {lobby.actualGame.turn() === "w" ? (
+            <span className="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-800 ring-1 ring-inset ring-gray-600/20">
+              White's turn to play
+            </span>
+          ) : (
+            <span className="inline-flex items-center rounded-md bg-gray-900 px-2 py-1 text-xs font-medium text-gray-50 ring-1 ring-inset ring-gray-600/20">
+              Black's turn to play
+            </span>
+          )}
+        </div>
+
+        {session?.user?.id !== lobby.white?.id &&
+          session?.user?.id !== lobby.black?.id && (
+            <Button
+              variant={"brand"}
+              className="rounded-full"
+              onClick={clickPlay}
+            >
+              Play as {lobby.white?.id ? "black" : "white"}
+            </Button>
+          )}
+      </div>
+
+      <div className="flex w-full flex-wrap justify-between gap-6 py-4">
+        <div className="relative flex h-min flex-col">
+          {/* overlay */}
+          {(!lobby.white?.id || !lobby.black?.id) && (
+            <div className="absolute bottom-0 right-0 top-0 z-10 flex h-full w-full items-center justify-center bg-black bg-opacity-70">
+              <div className="flex w-full items-center justify-center gap-4 bg-base-200 px-2"></div>
+            </div>
+          )}
+
+          <Chessboard
+            boardWidth={boardWidth}
+            customDarkSquareStyle={{ backgroundColor: "#4b7399" }}
+            customLightSquareStyle={{ backgroundColor: "#eae9d2" }}
+            position={navFen || lobby.actualGame.fen()}
+            boardOrientation={lobby.side === "b" ? "black" : "white"}
+            isDraggablePiece={isDraggablePiece}
+            onPieceDragBegin={onPieceDragBegin}
+            onPieceDragEnd={onPieceDragEnd}
+            onPieceDrop={onDrop}
+            onSquareClick={onSquareClick}
+            onSquareRightClick={onSquareRightClick}
+            arePremovesAllowed={!navFen}
+            customSquareStyles={{
+              ...(navIndex === null
+                ? customSquares.lastMove
+                : getNavMoveSquares()),
+              ...(navIndex === null ? customSquares.check : {}),
+              ...customSquares.rightClicked,
+              ...(navIndex === null ? customSquares.options : {}),
+            }}
+            ref={chessboardRef}
+          />
+
           {(lobby.endReason ||
             (lobby.pgn &&
               lobby.white &&
@@ -781,7 +601,7 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
               session?.user?.id === lobby.black?.id &&
               lobby.white &&
               !lobby.white?.connected)) && (
-            <div className="absolute w-full rounded-t-lg bg-neutral bg-opacity-95 p-2">
+            <div className="absolute flex h-full w-full items-center justify-center rounded-t-lg bg-zinc-800 bg-opacity-95 p-2 text-center font-medium text-zinc-50">
               {lobby.endReason ? (
                 <div>
                   {lobby.endReason === "abandoned"
@@ -793,14 +613,9 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
                       : `The game was won by checkmate (${lobby.winner}).`}{" "}
                   <br />
                   You can review the archived game at{" "}
-                  <a
-                    className="link"
-                    href={`/archive/${lobby.id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    ches.su/archive/{lobby.id}
-                  </a>
+                  <Link className="link" href={`/play/history/${lobby.id}`}>
+                    here
+                  </Link>
                   .
                 </div>
               ) : abandonSeconds > 0 ? (
@@ -808,90 +623,117 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
                   abandonSeconds > 1 ? "s" : ""
                 }.`
               ) : (
-                <div className="flex flex-wrap items-center justify-center gap-2">
+                <div className="flex flex-col flex-wrap items-center justify-center gap-2">
                   <span>Your opponent has disconnected.</span>
                   <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => claimAbandoned("win")}
-                      className="btn btn-primary btn-sm"
+                    <Button
+                      variant={"brand"}
+                      // onClick={() => claimAbandoned("win")}
+                      onClick={() => handleClaimAbandoned("win")}
+                      disabled={claimingAbandoned}
+                      size={"sm"}
+                      className="rounded-full"
                     >
+                      {claimingAbandoned && (
+                        <Loader2 className="w-5 animate-spin" />
+                      )}
                       Claim win
-                    </button>
-                    <button
-                      onClick={() => claimAbandoned("draw")}
-                      className="btn btn-ghost btn-sm"
+                    </Button>
+                    <Button
+                      // onClick={() => claimAbandoned("draw")}
+                      onClick={() => handleClaimAbandoned("draw")}
+                      disabled={claimingAbandoned}
+                      variant={"outline"}
+                      size={"sm"}
+                      className="rounded-full text-zinc-800"
                     >
+                      {claimingAbandoned && (
+                        <Loader2 className="w-5 animate-spin" />
+                      )}
                       Draw
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}
             </div>
           )}
-          <div className="flex h-full w-full min-w-[64px] flex-col rounded-lg bg-base-300 p-4 shadow-sm">
-            <ul
-              className="mb-4 flex h-full flex-col gap-1 overflow-y-scroll break-words"
-              ref={chatListRef}
-            >
-              {chatMessages.map((m, i) => (
-                <li
-                  className={
-                    "max-w-[30rem]" +
-                    (!m.author.id && m.author.name === "server"
-                      ? " bg-base-content p-2 text-base-300"
-                      : "")
-                  }
-                  key={i}
+        </div>
+
+        {/* chat field */}
+        <div className="flex max-w-lg flex-1 flex-col items-center justify-center gap-4"></div>
+        {/* other chat field */}
+        <div className="sm:mx-aut relative bg-white px-6 pb-8 shadow-xl ring-1 ring-gray-900/5 sm:rounded-lg">
+          <div className="mx-auto w-full max-w-2xl">
+            <div className="divide relative flex flex-col justify-between">
+              <div className="space-y-6 py-8 text-base leading-7 text-gray-600">
+                <ul
+                  className="mb-4 flex h-[30rem] max-h-[40rem] flex-col gap-1 overflow-y-scroll break-words"
+                  ref={chatListRef}
                 >
-                  <span>
-                    {m.author.id && (
+                  {chatMessages.map((m, i) => (
+                    <li
+                      className={
+                        "max-w-[50rem] " +
+                        (!m.author.id && m.author.name === "server"
+                          ? " rounded-full bg-blue-500 p-2 pl-3 text-base-300"
+                          : "")
+                      }
+                      key={i}
+                    >
                       <span>
-                        <a
-                          className={
-                            "font-bold" +
-                            (typeof m.author.id === "number"
-                              ? " link-hover text-primary"
-                              : " cursor-default")
-                          }
-                          href={
-                            typeof m.author.id === "number"
-                              ? `/user/${m.author.name}`
-                              : undefined
-                          }
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {m.author.name}
-                        </a>
-                        :{" "}
+                        {m.author.id && (
+                          <span>
+                            <a
+                              className={
+                                "font-bold" +
+                                (typeof m.author.id === "number"
+                                  ? " link-hover text-sm text-blue-400"
+                                  : " cursor-default")
+                              }
+                              href={
+                                typeof m.author.id === "number"
+                                  ? `/play/user/${m.author.id}`
+                                  : undefined
+                              }
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {m.author.name}
+                            </a>
+                            :{" "}
+                          </span>
+                        )}
+                        <span className="text-sm">{m.message}</span>
                       </span>
-                    )}
-                    <span>{m.message}</span>
-                  </span>
-                </li>
-              ))}
-            </ul>
-            <form className="input-group mt-auto" onSubmit={chatClickSend}>
-              <input
-                type="text"
-                placeholder="Chat here..."
-                className="input input-bordered flex-grow"
-                name="chatInput"
-                id="chatInput"
-                onKeyUp={chatKeyUp}
-                required
-              />
-              <button className="btn btn-secondary ml-1" type="submit">
-                send
-              </button>
-            </form>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <form
+                onSubmit={chatClickSend}
+                className="bottom-0 flex w-full items-center justify-between pt-8 text-base font-semibold leading-7"
+              >
+                <div className="w-full">
+                  <Input
+                    name="chatInput"
+                    id="chatInput"
+                    type="text"
+                    placeholder="Chat"
+                    className="w-full rounded-full placeholder:text-zinc-400"
+                    onKeyUp={chatKeyUp}
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  variant={"brand"}
+                  className="ml-2 rounded-full"
+                >
+                  Send
+                </Button>
+              </form>
+            </div>
           </div>
         </div>
-        {lobby.observers && lobby.observers.length > 0 && (
-          <div className="w-full px-2 text-xs md:px-0">
-            Spectators: {lobby.observers?.map((o) => o.name).join(", ")}
-          </div>
-        )}
       </div>
     </div>
   );

@@ -18,7 +18,8 @@ export default function GameAuthWrapper({
     return (
       <div className="flex w-full flex-col items-center justify-center gap-4">
         <div className="text-2xl font-bold">Loading</div>
-        <div className="text-xl">Waiting for authentication...</div>
+        <div className="text-xl">Checking for session...</div>
+        <div className="text-xl">(Please log in if you have not done so)</div>
       </div>
     );
   }
