@@ -174,9 +174,9 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
     if (lobby.side === "s" || !lobby.white?.id || !lobby.black?.id) return;
 
     if (!lobby.endReason && lobby.side === lobby.actualGame.turn()) {
-      document.title = "(your turn) chessu";
+      document.title = "(your turn) BoardBlitz";
     } else {
-      document.title = "chessu";
+      document.title = "BoardBlitz";
     }
   }
 
@@ -562,7 +562,7 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
           {/* overlay */}
           {(!lobby.white?.id || !lobby.black?.id) && (
             <div className="absolute bottom-0 right-0 top-0 z-10 flex h-full w-full items-center justify-center bg-black bg-opacity-70">
-              <div className="flex w-full items-center justify-center gap-4 bg-base-200 px-2"></div>
+              <div className="bg-base-200 flex w-full items-center justify-center gap-4 px-2"></div>
             </div>
           )}
 
@@ -675,7 +675,7 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
                       className={
                         "max-w-[50rem] " +
                         (!m.author.id && m.author.name === "server"
-                          ? " rounded-full bg-blue-500 p-2 pl-3 text-base-300"
+                          ? " text-base-300 rounded-full bg-blue-500 p-2 pl-3"
                           : "")
                       }
                       key={i}

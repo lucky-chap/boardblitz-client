@@ -39,3 +39,17 @@ body {
   background: rgb(126, 126, 126);
   border-radius: 10px;
 }
+
+/* .pattern {
+  background-image: url("../public/images/patternTop.svg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+} */
+
+.pattern {
+  background-image: radial-gradient(#00000022 1px, transparent 0);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}

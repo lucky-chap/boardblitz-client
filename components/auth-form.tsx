@@ -1,32 +1,25 @@
 "use client";
 
 import { useContext, useState } from "react";
-import Link from "next/link";
 import { SessionContext } from "@/context/session";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { login, logout, register, setGuestSession } from "@/lib/requests/auth";
+import { login, register, setGuestSession } from "@/lib/requests/auth";
 import { cn, removeSpaces } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 
-const GuestFormSchema = z.object({
+import GuestForm from "./guest-form";
+import LoginForm from "./login-form";
+import SignupForm from "./signup-form";
+
+export const GuestFormSchema = z.object({
   name: z.string().min(4, {
     message: "Name must be at least 4 characters.",
   }),
 });
-const SignupFormSchema = z.object({
+export const SignupFormSchema = z.object({
   name: z.string().min(4, {
     message: "Name must be at least 4 characters.",
   }),
@@ -35,7 +28,7 @@ const SignupFormSchema = z.object({
     .string()
     .min(6, { message: "Password must be at least 6 characters." }),
 });
-const LoginFormSchema = z.object({
+export const LoginFormSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
   password: z
     .string()
@@ -82,16 +75,6 @@ export function AuthForm({
       name: "",
     },
   });
-
-  const logoutUser = async () => {
-    setLoading(true);
-    const res = await logout();
-    if (res) {
-      setLoading(false);
-      session?.setUser(null);
-      window.location.reload();
-    }
-  };
 
   async function onSubmitLogin(data: z.infer<typeof LoginFormSchema>) {
     setLoading(true);
@@ -155,171 +138,6 @@ export function AuthForm({
     }
   }
 
-  const LoginForm = () => {
-    return (
-      <Form {...loginForm}>
-        <form
-          onSubmit={loginForm.handleSubmit(onSubmitLogin)}
-          className="grid gap-6"
-        >
-          <div className="grid gap-2">
-            <FormField
-              control={loginForm.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="grid gap-2">
-            <FormField
-              control={loginForm.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex items-center justify-between">
-                    <FormLabel>Password</FormLabel>
-                    <div className="text-center text-xs">
-                      <Link href="/forgot-password">
-                        {isLogin ? "Recover password" : ""}
-                      </Link>
-                    </div>
-                  </div>
-                  <FormControl>
-                    <Input type="password" {...field} />
-                  </FormControl>
-
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <Button
-            type="submit"
-            variant={"brand"}
-            className="w-full"
-            disabled={loading}
-          >
-            {loading ? <Loader2 className="animate-spin" /> : null}
-            {loading ? "Logging you in..." : "Login"}
-          </Button>
-        </form>
-      </Form>
-    );
-  };
-
-  const SignupForm = () => {
-    return (
-      <Form {...signupForm}>
-        <form
-          onSubmit={signupForm.handleSubmit(onSubmitSignup)}
-          className="grid gap-6"
-        >
-          <div className="grid gap-2">
-            <FormField
-              control={signupForm.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="grid gap-2">
-            <FormField
-              control={signupForm.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="grid gap-2">
-            <FormField
-              control={signupForm.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" {...field} />
-                  </FormControl>
-
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <Button
-            type="submit"
-            variant={"brand"}
-            className="w-full"
-            disabled={loading}
-          >
-            {loading ? <Loader2 className="animate-spin" /> : null}
-            {loading ? "Signing you up..." : "Signup"}
-          </Button>
-        </form>
-      </Form>
-    );
-  };
-
-  const GuestForm = () => {
-    return (
-      <Form {...guestForm}>
-        <form
-          onSubmit={guestForm.handleSubmit(onSubmitGuest)}
-          className="grid gap-6"
-        >
-          <div className="grid gap-2">
-            <FormField
-              control={guestForm.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <Button
-            type="submit"
-            variant={"brand"}
-            className="w-full"
-            disabled={loading}
-          >
-            {loading ? <Loader2 className="animate-spin" /> : null}
-            {loading ? "Guest loggin in..." : "Login as guest"}
-          </Button>
-        </form>
-      </Form>
-    );
-  };
-
   return (
     <section className={cn("flex flex-col gap-6", className)} {...props}>
       <div className="mb-10 flex flex-col items-center gap-2 text-center">
@@ -338,7 +156,25 @@ export function AuthForm({
               : "Hello! Please enter your details to start."}
         </p>
       </div>
-      {isGuest ? <GuestForm /> : isLogin ? <LoginForm /> : <SignupForm />}
+      {isGuest ? (
+        <GuestForm
+          loading={loading}
+          onSubmitGuest={onSubmitGuest}
+          guestForm={guestForm}
+        />
+      ) : isLogin ? (
+        <LoginForm
+          loading={loading}
+          onSubmitLogin={onSubmitLogin}
+          loginForm={loginForm}
+        />
+      ) : (
+        <SignupForm
+          loading={loading}
+          onSubmitSignup={onSubmitSignup}
+          signupForm={signupForm}
+        />
+      )}
       {isGuest ? (
         ""
       ) : (
@@ -366,16 +202,7 @@ export function AuthForm({
           {isGuest ? "Login with credentials" : "Continue as guest"}
         </Button>
       </div>
-      <div className="text-center text-sm">
-        <Button
-          variant={"link"}
-          onClick={() => logoutUser()}
-          className=""
-          disabled={loading}
-        >
-          Logout
-        </Button>
-      </div>
+
       <div className="text-center text-sm">
         {loginSuccess && <p className="text-green-500">{loginSuccess}</p>}
         {signupSuccess && <p className="text-green-500">{signupSuccess}</p>}

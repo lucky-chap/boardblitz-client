@@ -1,10 +1,11 @@
 "use client";
 
+import React from "react";
 import { Loader2 } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 
-import { LoginFormSchema } from "./auth-form";
+import { LoginFormSchema, SignupFormSchema } from "./auth-form";
 import { Button } from "./ui/button";
 import {
   Form,
@@ -16,33 +17,49 @@ import {
 } from "./ui/form";
 import { Input } from "./ui/input";
 
-type LoginFormProps = {
-  loginForm: UseFormReturn<
+type SignupFormProps = {
+  signupForm: UseFormReturn<
     {
+      name: string;
       email: string;
       password: string;
     },
     any,
     undefined
   >;
-  onSubmitLogin(data: z.infer<typeof LoginFormSchema>): Promise<void>;
+  onSubmitSignup(data: z.infer<typeof SignupFormSchema>): Promise<void>;
   loading: boolean;
 };
 
-export default function LoginForm({
-  loginForm,
-  onSubmitLogin,
+export default function SignupForm({
+  signupForm,
+  onSubmitSignup,
   loading,
-}: LoginFormProps) {
+}: SignupFormProps) {
   return (
-    <Form {...loginForm}>
+    <Form {...signupForm}>
       <form
-        onSubmit={loginForm.handleSubmit(onSubmitLogin)}
+        onSubmit={signupForm.handleSubmit(onSubmitSignup)}
         className="grid gap-6"
       >
         <div className="grid gap-2">
           <FormField
-            control={loginForm.control}
+            control={signupForm.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="grid gap-2">
+          <FormField
+            control={signupForm.control}
             name="email"
             render={({ field }) => (
               <FormItem>
@@ -57,13 +74,11 @@ export default function LoginForm({
         </div>
         <div className="grid gap-2">
           <FormField
-            control={loginForm.control}
+            control={signupForm.control}
             name="password"
             render={({ field }) => (
               <FormItem>
-                <div className="flex items-center justify-between">
-                  <FormLabel>Password</FormLabel>
-                </div>
+                <FormLabel>Password</FormLabel>
                 <FormControl>
                   <Input type="password" {...field} />
                 </FormControl>
@@ -81,7 +96,7 @@ export default function LoginForm({
           disabled={loading}
         >
           {loading ? <Loader2 className="animate-spin" /> : null}
-          {loading ? "Logging you in..." : "Login"}
+          {loading ? "Signing you up..." : "Signup"}
         </Button>
       </form>
     </Form>

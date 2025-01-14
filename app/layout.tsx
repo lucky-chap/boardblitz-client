@@ -40,6 +40,32 @@ const inter = localFont({
   ],
 });
 
+const spaceMono = localFont({
+  variable: "--font-mono",
+  src: [
+    {
+      path: "../public/fonts/space-mono/SpaceMono-Regular.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/space-mono/SpaceMono-Italic.ttf",
+      weight: "400",
+      style: "italic",
+    },
+    {
+      path: "../public/fonts/space-mono/SpaceMono-Bold.ttf",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/space-mono/SpaceMono-BoldItalic.ttf",
+      weight: "700",
+      style: "italic",
+    },
+  ],
+});
+
 export const metadata = {
   title: "Boardblitz",
   description: "Play Chess online.",
@@ -76,17 +102,12 @@ export default function RootLayout({
 }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} overflow-x-hidden font-sans`}>
+      <body
+        className={`${inter.variable} ${spaceMono.variable} overflow-x-hidden font-sans`}
+      >
         <ContextProvider>
-          {/* <Header /> */}
-
-          {/* <main className="mx-1 flex min-h-[70vh] justify-center md:mx-16 lg:mx-40"> */}
           <main className="flex min-h-svh">{children}</main>
-
-          {/* <AuthModal /> */}
         </ContextProvider>
-
-        {/* <Footer /> */}
       </body>
     </html>
   );

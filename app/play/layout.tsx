@@ -18,7 +18,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     // wait one second to check for session first
     console.log("Authenticated: ", session?.isAuthenticated);
     if (session?.isAuthenticated === false) {
-      router.push("/");
+      router.push("/auth");
     }
     // setTimeout(() => {
     // }, 3000);
