@@ -1,6 +1,7 @@
 "use client";
 
 import { useContext, useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SessionContext } from "@/context/session";
 
@@ -27,7 +28,9 @@ export default function HomePage() {
         <div className="gap- flex flex-col p-6 md:p-10 md:pt-0">
           <div className="flex flex-1 items-start justify-center">
             <div className="mx-auto w-full max-w-xs">
-              <Logo />
+              <Link href="/">
+                <Logo />
+              </Link>
               <AuthForm />
             </div>
           </div>
