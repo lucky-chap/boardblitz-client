@@ -22,7 +22,7 @@ export default function HomePage() {
     } else {
       router.push("/play");
     }
-  }, []);
+  }, [session?.user]);
 
   return (
     <>

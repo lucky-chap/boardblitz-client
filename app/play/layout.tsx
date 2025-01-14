@@ -26,9 +26,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       // after auth
       session?.setUser(session?.user as User);
     }
-  }, []);
+  }, [session?.user]);
 
   console.log("Session on play layout: ", session);
+
   return (
     <main className="w-full bg-zinc-50">
       <div className="w-full border-b border-zinc-200">
