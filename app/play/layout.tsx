@@ -17,11 +17,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // wait one second to check for session first
     console.log("Authenticated: ", session?.isAuthenticated);
-    if (session?.isAuthenticated === false) {
+    if (!session?.isAuthenticated) {
       router.push("/auth");
     }
-    // setTimeout(() => {
-    // }, 3000);
   }, [session?.isAuthenticated]);
   return (
     <main className="w-full bg-zinc-50">
