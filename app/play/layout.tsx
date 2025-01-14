@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SessionContext } from "@/context/session";
 
+import { User } from "@/lib/types";
 import Logo from "@/components/logo";
 import ProfileDropdown from "@/components/profile-dropdown";
 
@@ -22,10 +23,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     } else {
       // resave session
       // for some reason the session is not being saved or is lost
-      // after authentication
-      if (session?.user) {
-        session.setUser(session.user);
-      }
+      // after auth
+      session?.setUser(session?.user as User);
     }
   }, []);
 
