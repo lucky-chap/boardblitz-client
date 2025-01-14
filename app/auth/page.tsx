@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SessionContext } from "@/context/session";
 
+import { Button } from "@/components/ui/button";
 import { AuthForm } from "@/components/auth-form";
 import Logo from "@/components/logo";
 
@@ -15,10 +16,8 @@ export default function HomePage() {
   useEffect(() => {
     console.log("In effect hook");
     if (session?.isAuthenticated) {
-      console.log("In if");
       router.push("/play");
     } else {
-      console.log("In else");
     }
   }, [session?.isAuthenticated]);
 
@@ -31,7 +30,15 @@ export default function HomePage() {
               <Link href="/">
                 <Logo />
               </Link>
-              <AuthForm />
+              {session?.isAuthenticated ? (
+                <Link href="/play" className="w-full">
+                  <Button variant={"brand"} className="mt-4 w-full">
+                    Play
+                  </Button>
+                </Link>
+              ) : (
+                <AuthForm />
+              )}
             </div>
           </div>
         </div>

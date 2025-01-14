@@ -1,6 +1,7 @@
 "use client";
 
 import { useContext, useState } from "react";
+import { useRouter } from "next/navigation";
 import { SessionContext } from "@/context/session";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -39,6 +40,7 @@ export function AuthForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"form">) {
+  const router = useRouter();
   const session = useContext(SessionContext);
   const [isLogin, setIsLogin] = useState(true);
   const [isGuest, setIsGuest] = useState(false);
@@ -93,7 +95,7 @@ export function AuthForm({
       setTimeout(() => {
         setLoginSuccess(null);
       }, 3500);
-      window.location.reload();
+      router.push("/play");
     }
   }
   async function onSubmitSignup(data: z.infer<typeof SignupFormSchema>) {
@@ -114,7 +116,7 @@ export function AuthForm({
       setTimeout(() => {
         setSignupSuccess(null);
       }, 3500);
-      window.location.reload();
+      router.push("/play");
     }
   }
   async function onSubmitGuest(data: z.infer<typeof GuestFormSchema>) {
@@ -134,7 +136,7 @@ export function AuthForm({
       setTimeout(() => {
         setGuestError(null);
       }, 3500);
-      window.location.reload();
+      router.push("/play");
     }
   }
 
