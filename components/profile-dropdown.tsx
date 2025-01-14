@@ -28,7 +28,6 @@ export default function ProfileDropdown() {
     if (res) {
       setLoading(false);
       session?.setUser(null);
-      session?.setUser(null);
       router.push("/");
     }
   };

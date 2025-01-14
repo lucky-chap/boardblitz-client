@@ -19,6 +19,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       Object.keys(session?.user || {}).length > 0 == false
     ) {
       router.push("/auth");
+    } else {
+      // resave session
+      // for some reason the session is not being saved or is lost
+      // after authentication
+      if (session?.user) {
+        session.setUser(session.user);
+      }
     }
   }, []);
 
