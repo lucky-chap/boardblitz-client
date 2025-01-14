@@ -19,7 +19,7 @@ export default function HomePage() {
       router.push("/play");
     } else {
     }
-  }, [session?.isAuthenticated]);
+  }, []);
 
   return (
     <>
