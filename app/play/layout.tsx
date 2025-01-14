@@ -5,19 +5,19 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SessionContext } from "@/context/session";
 
-import { useRequireAuth } from "@/lib/hooks/useRequireAuth";
 import Logo from "@/components/logo";
 import ProfileDropdown from "@/components/profile-dropdown";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const session = useContext(SessionContext);
-  const isAuthenticated = useRequireAuth();
 
   useEffect(() => {
-    // wait one second to check for session first
     console.log("Authenticated: ", session?.isAuthenticated);
-    if (!session?.isAuthenticated) {
+    if (
+      session?.user === null ||
+      Object.keys(session?.user || {}).length > 0 == false
+    ) {
       router.push("/auth");
     }
   }, []);

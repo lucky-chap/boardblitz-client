@@ -14,10 +14,13 @@ export default function HomePage() {
   const session = useContext(SessionContext);
 
   useEffect(() => {
-    console.log("In effect hook");
-    if (session?.isAuthenticated) {
-      router.push("/play");
+    if (
+      session?.user === null ||
+      Object.keys(session?.user || {}).length > 0 == false
+    ) {
+      return;
     } else {
+      router.push("/play");
     }
   }, []);
 
@@ -30,15 +33,15 @@ export default function HomePage() {
               <Link href="/">
                 <Logo />
               </Link>
-              {session?.isAuthenticated ? (
+              {/* {session?.user !== null ? (
                 <Link href="/play" className="w-full">
                   <Button variant={"brand"} className="mt-4 w-full">
                     Play
                   </Button>
                 </Link>
               ) : (
-                <AuthForm />
-              )}
+              )} */}
+              <AuthForm />
             </div>
           </div>
         </div>
