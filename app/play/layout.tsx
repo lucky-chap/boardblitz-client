@@ -20,7 +20,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     if (!session?.isAuthenticated) {
       router.push("/auth");
     }
-  }, [session?.isAuthenticated]);
+  }, []);
+
+  console.log("Session on play layout: ", session);
   return (
     <main className="w-full bg-zinc-50">
       <div className="w-full border-b border-zinc-200">
