@@ -31,22 +31,23 @@ export default function Home() {
             <br /> for FREE!
           </p>
           <div className="mt-6 flex items-center justify-between">
-            {session?.isAuthenticated ? (
-              <Link href={"/play"} className="w-full">
-                <Button
-                  variant={"outline"}
-                  className="w-full rounded-xl text-gray-600"
-                >
-                  Continue
-                </Button>
-              </Link>
-            ) : (
+            {session?.user === null ||
+            Object.keys(session?.user || {}).length > 0 == false ? (
               <Link href={"/auth"} className="w-full">
                 <Button
                   variant={"outline"}
                   className="w-full rounded-xl text-gray-600"
                 >
                   Play now
+                </Button>
+              </Link>
+            ) : (
+              <Link href={"/play"} className="w-full">
+                <Button
+                  variant={"outline"}
+                  className="w-full rounded-xl text-gray-600"
+                >
+                  Continue
                 </Button>
               </Link>
             )}

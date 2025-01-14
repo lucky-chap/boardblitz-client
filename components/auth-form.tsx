@@ -91,6 +91,7 @@ export function AuthForm({
       setLoading(false);
       loginForm.reset();
       session?.setUser(user);
+      console.log("Newly set session after login: ", session);
       setLoginSuccess("You have successfully logged in. Redirecting...");
       setTimeout(() => {
         setLoginSuccess(null);
@@ -111,6 +112,7 @@ export function AuthForm({
     } else if (user?.id) {
       setLoading(false);
       session?.setUser(user);
+      console.log("Newly set session after signup: ", session);
       signupForm.reset();
       setSignupSuccess("You have successfully registered. Redirecting...");
       setTimeout(() => {
@@ -126,6 +128,7 @@ export function AuthForm({
       setLoading(false);
       guestForm.reset();
       session?.setUser(user);
+      console.log("Newly set session after guest: ", session);
       setGuestSuccess("You have successfully set guest session.");
       setTimeout(() => {
         setGuestSuccess(null);
