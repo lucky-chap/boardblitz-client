@@ -171,7 +171,7 @@ export default function StartGame({
                 )}
               />
 
-              <FormField
+              {/* <FormField
                 control={createGameForm.control}
                 name="unlisted"
                 render={({ field }) => (
@@ -193,7 +193,7 @@ export default function StartGame({
                     </FormControl>
                   </FormItem>
                 )}
-              />
+              /> */}
               <Button variant="outline" className="w-full" disabled={loading}>
                 {loading ? <Loader2 className="animate-spin" /> : null}
                 {loading ? "Creating game..." : "Create game"}

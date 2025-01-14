@@ -6,7 +6,12 @@ import Link from "next/link";
 import { SessionContext } from "@/context/session";
 import type { Move, Square } from "chess.js";
 import { Chess } from "chess.js";
-import { Loader2 } from "lucide-react";
+import {
+  Clipboard,
+  ClipboardCheck,
+  ClipboardIcon,
+  Loader2,
+} from "lucide-react";
 import type { ClearPremoves } from "react-chessboard";
 import { Chessboard } from "react-chessboard";
 import { io } from "socket.io-client";
@@ -32,6 +37,7 @@ const socket = io(SOCKET_URL, {
 export default function GamePage({ initialLobby }: { initialLobby: Game }) {
   const session = useContext(SessionContext);
   const [chatText, setChatText] = useState("");
+  const [codeCopied, setCodeCopied] = useState(false);
   const [claimingAbandoned, setIsClaimingAbandoned] = useState(false);
 
   const [lobby, updateLobby] = useReducer(lobbyReducer, {
@@ -58,6 +64,14 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
   const chatListRef = useRef<HTMLUListElement>(null);
   const moveListRef = useRef<HTMLDivElement>(null);
+
+  const handleCopyCode = async () => {
+    await navigator.clipboard.writeText(lobby.code as string);
+    setCodeCopied(true);
+    setTimeout(() => {
+      setCodeCopied(false);
+    }, 2000);
+  };
 
   const [abandonSeconds, setAbandonSeconds] = useState(60);
   useEffect(() => {
@@ -479,7 +493,7 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
         <div className="flex">
           {typeof lobby.black?.id === "number" ? (
             <Link href={`/play/user/${lobby.black?.id}`}>
-              <div className="relative mb-3 mr-2">
+              <div className="relative mr-2">
                 <span
                   className={`${lobby.black.connected ? "bg-green-50 text-green-800 ring-green-600/20" : "bg-red-50 text-red-800 ring-red-600/20"} inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset`}
                 >
@@ -488,7 +502,7 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
               </div>
             </Link>
           ) : (
-            <div className="relative mb-3 mr-2">
+            <div className="relative mr-2">
               <span
                 className={`${lobby.black && lobby.black.connected ? "bg-green-50 text-green-800 ring-green-600/20" : "bg-red-50 text-red-800 ring-red-600/20"} inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset`}
               >
@@ -501,7 +515,7 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
 
           {typeof lobby.white?.id === "number" ? (
             <Link href={`/play/user/${lobby.white?.id}`}>
-              <div className="relative mb-3 ml-2">
+              <div className="relative ml-2">
                 <span
                   className={`${lobby.white.connected ? "bg-green-50 text-green-800 ring-green-600/20" : "bg-red-50 text-red-800 ring-red-600/20"} inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset`}
                 >
@@ -510,7 +524,7 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
               </div>
             </Link>
           ) : (
-            <div className="relative mb-3 ml-2">
+            <div className="relative ml-2">
               <span
                 className={`${lobby.white && lobby.white.connected ? "bg-green-50 text-green-800 ring-green-600/20" : "bg-red-50 text-red-800 ring-red-600/20"} inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset`}
               >
@@ -521,7 +535,21 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
           )}
         </div>
 
-        {session?.user?.id !== lobby.white?.id &&
+        {codeCopied ? (
+          <p className="text-sm text-gray-700">Game code copied!</p>
+        ) : (
+          <button
+            onClick={handleCopyCode}
+            className="flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-500/10"
+          >
+            <p className="">
+              Invite others <span className="font-bold">{lobby.code}</span>
+            </p>{" "}
+            <ClipboardIcon className="ml-1 h-4 w-4" />
+          </button>
+        )}
+
+        {/* {session?.user?.id !== lobby.white?.id &&
           session?.user?.id !== lobby.black?.id && (
             <div className="relative">
               <span className="absolute inline-flex h-2 w-2 animate-ping rounded-full bg-yellow-500 opacity-75"></span>
@@ -530,7 +558,7 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
                 Waiting for opponent to join...
               </span>
             </div>
-          )}
+          )} */}
 
         {/* show whose turn it is to play */}
         <div className="flex items-center gap-2">
@@ -557,7 +585,7 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
           )}
       </div>
 
-      <div className="flex w-full flex-wrap justify-between gap-6 py-4">
+      <div className="mt-5 flex w-full flex-wrap justify-between gap-6 py-4">
         <div className="relative flex h-min flex-col">
           {/* overlay */}
           {(!lobby.white?.id || !lobby.black?.id) && (
@@ -613,10 +641,12 @@ export default function GamePage({ initialLobby }: { initialLobby: Game }) {
                       : `The game was won by checkmate (${lobby.winner}).`}{" "}
                   <br />
                   You can review the archived game at{" "}
-                  <Link className="link" href={`/play/history/${lobby.id}`}>
-                    here
+                  <Link
+                    className="font-bold text-blue-500"
+                    href={`/play/history/${lobby.id}`}
+                  >
+                    here.
                   </Link>
-                  .
                 </div>
               ) : abandonSeconds > 0 ? (
                 `Your opponent has disconnected. You can claim the win or draw in ${abandonSeconds} second${
