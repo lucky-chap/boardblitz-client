@@ -5,9 +5,6 @@ export const fetchSession = async () => {
   try {
     const res = await fetch(`${API_URL}/auth/session`, {
       credentials: "include",
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-      },
     });
 
     if (res && res.status === 200) {
