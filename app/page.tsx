@@ -12,7 +12,6 @@ import DotPattern from "@/components/ui/dot-pattern";
 
 export default function Home() {
   const session = useContext(SessionContext);
-  console.log("Session: ", session);
   return (
     <section className="relative flex w-full justify-between bg-zinc-100">
       <DotPattern className={cn()} />
