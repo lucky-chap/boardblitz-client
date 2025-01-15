@@ -16,7 +16,9 @@ export default function ContextProvider({ children }: { children: ReactNode }) {
   async function getSession() {
     const data = await fetchSession();
     setIsAuthenticated(data && data.isAuthenticated ? true : false);
-    setUser(data?.user || null);
+    setUser(data?.user as User);
+    // save the session to local storage
+    localStorage.setItem("session", JSON.stringify(data));
   }
 
   useEffect(() => {

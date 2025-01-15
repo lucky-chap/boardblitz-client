@@ -14,21 +14,28 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const session = useContext(SessionContext);
 
   useEffect(() => {
-    console.log("Authenticated: ", session?.isAuthenticated);
-    if (
-      session?.user === null ||
-      Object.keys(session?.user || {}).length > 0 == false
-    ) {
-      router.push("/auth");
+    // retrieve session from local storage
+    // and set it to the context
+    // if session is not set
+    // redirect to auth page
+    const localStorageSession = localStorage.getItem("session");
+    if (localStorageSession) {
+      const parsedSession: {
+        user: User;
+        isAuthenticated: boolean;
+      } = JSON.parse(localStorageSession);
+      session?.setUser(parsedSession.user);
+      console.log("Local storage session: ", parsedSession);
+      if (
+        parsedSession.user === null ||
+        Object.keys(parsedSession?.user || {}).length > 0 == false
+      ) {
+        router.push("/auth");
+      }
     } else {
-      // resave session
-      // for some reason the session is not being saved or is lost
-      // after auth
-      session?.setUser(session?.user as User);
+      router.push("/auth");
     }
-  }, [session?.user]);
-
-  console.log("Session on play layout: ", session);
+  }, []);
 
   return (
     <main className="w-full bg-zinc-50">

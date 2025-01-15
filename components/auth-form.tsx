@@ -88,6 +88,8 @@ export function AuthForm({
         setLoginError(null);
       }, 3500);
     } else if (user?.id) {
+      // save to local storage
+      localStorage.setItem("session", JSON.stringify(user));
       setLoading(false);
       loginForm.reset();
       session?.setUser(user);
@@ -110,6 +112,8 @@ export function AuthForm({
         setSignupError(null);
       }, 3500);
     } else if (user?.id) {
+      // save to local storage
+      localStorage.setItem("session", JSON.stringify(user));
       setLoading(false);
       session?.setUser(user);
       console.log("Newly set session after signup: ", session);
@@ -125,6 +129,8 @@ export function AuthForm({
     setLoading(true);
     const user = await setGuestSession(data.name);
     if (user) {
+      // save to local storage
+      localStorage.setItem("session", JSON.stringify(user));
       setLoading(false);
       guestForm.reset();
       session?.setUser(user);

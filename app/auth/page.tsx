@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SessionContext } from "@/context/session";
 
+import { User } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { AuthForm } from "@/components/auth-form";
 import Logo from "@/components/logo";
@@ -14,15 +15,28 @@ export default function HomePage() {
   const session = useContext(SessionContext);
 
   useEffect(() => {
-    if (
-      session?.user === null ||
-      Object.keys(session?.user || {}).length > 0 == false
-    ) {
-      return;
+    // retrieve session from local storage
+    // and set it to the context
+    // if session is not set
+    // redirect to auth page
+    const localStorageSession = localStorage.getItem("session");
+    if (localStorageSession) {
+      const parsedSession: {
+        user: User;
+        isAuthenticated: boolean;
+      } = JSON.parse(localStorageSession);
+      session?.setUser(parsedSession.user);
+      console.log("Local storage session: ", parsedSession);
+      if (
+        parsedSession.user === null ||
+        Object.keys(parsedSession?.user || {}).length > 0 == false
+      ) {
+        return;
+      }
     } else {
       router.push("/play");
     }
-  }, [session?.user]);
+  }, []);
 
   return (
     <>

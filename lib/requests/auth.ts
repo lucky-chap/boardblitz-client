@@ -8,14 +8,16 @@ export const fetchSession = async () => {
     });
 
     if (res && res.status === 200) {
-      console.log("Session found!");
       const result: User = await res.json();
+      console.log("Session found!");
       const data: { user: User; isAuthenticated: boolean } = {
         user: result,
         isAuthenticated: true,
       };
       return data;
     } else {
+      const data = await res.json();
+      console.log("Session not found! ", data);
       return {
         user: undefined,
         isAuthenticated: false,

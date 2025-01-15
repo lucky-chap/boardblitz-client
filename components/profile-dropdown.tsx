@@ -24,6 +24,8 @@ export default function ProfileDropdown() {
   const session = useContext(SessionContext);
   const logoutUser = async () => {
     setLoading(true);
+    // remove from local storage
+    localStorage.removeItem("session");
     const res = await logout();
     if (res) {
       setLoading(false);
