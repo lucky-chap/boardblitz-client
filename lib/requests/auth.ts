@@ -4,7 +4,7 @@ import type { User } from "@/lib/types";
 export const fetchSession = async () => {
   try {
     const res = await fetch(`${API_URL}/auth/session`, {
-      credentials: "include",
+      credentials: "same-origin",
     });
 
     if (res && res.status === 200) {
